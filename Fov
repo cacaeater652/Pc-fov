@@ -1,0 +1,139 @@
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+-------------------------------------------------
+-- SETTINGS
+-------------------------------------------------
+
+local DEFAULT_FOV = 70
+local FOVEnabled = false
+local CustomFOV = 120
+
+-------------------------------------------------
+-- GUI
+-------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "FOVController"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 220, 0, 140)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.Parent = frame
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 25)
+title.BackgroundTransparency = 1
+title.Text = "FOV Controller"
+title.TextColor3 = Color3.new(1,1,1)
+title.TextScaled = true
+title.Parent = frame
+
+-- Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0.9, 0, 0, 30)
+toggleButton.Position = UDim2.new(0.05, 0, 0, 35)
+toggleButton.Text = "FOV: OFF"
+toggleButton.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+toggleButton.TextColor3 = Color3.new(1,1,1)
+toggleButton.Parent = frame
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.Parent = toggleButton
+
+-- TextBox
+local fovBox = Instance.new("TextBox")
+fovBox.Size = UDim2.new(0.9, 0, 0, 30)
+fovBox.Position = UDim2.new(0.05, 0, 0, 70)
+fovBox.PlaceholderText = "Enter FOV (e.g. 120)"
+fovBox.Text = tostring(CustomFOV)
+fovBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+fovBox.TextColor3 = Color3.new(1,1,1)
+fovBox.Parent = frame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.Parent = fovBox
+
+-- Apply Button
+local applyButton = Instance.new("TextButton")
+applyButton.Size = UDim2.new(0.9, 0, 0, 25)
+applyButton.Position = UDim2.new(0.05, 0, 0, 105)
+applyButton.Text = "Apply FOV"
+applyButton.BackgroundColor3 = Color3.fromRGB(50, 120, 50)
+applyButton.TextColor3 = Color3.new(1,1,1)
+applyButton.Parent = frame
+
+local applyCorner = Instance.new("UICorner")
+applyCorner.Parent = applyButton
+
+-------------------------------------------------
+-- HIDE BUTTON
+-------------------------------------------------
+
+local hideButton = Instance.new("TextButton")
+hideButton.Size = UDim2.new(0, 40, 0, 25)
+hideButton.Position = UDim2.new(0, 235, 0, 10)
+hideButton.Text = "-"
+hideButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+hideButton.TextColor3 = Color3.new(1,1,1)
+hideButton.Parent = gui
+
+local hideCorner = Instance.new("UICorner")
+hideCorner.Parent = hideButton
+
+local hidden = false
+
+hideButton.MouseButton1Click:Connect(function()
+	hidden = not hidden
+
+	frame.Visible = not hidden
+
+	if hidden then
+		hideButton.Text = "+"
+	else
+		hideButton.Text = "-"
+	end
+end)
+
+-------------------------------------------------
+-- FOV FUNCTIONS
+-------------------------------------------------
+
+toggleButton.MouseButton1Click:Connect(function()
+	FOVEnabled = not FOVEnabled
+
+	if FOVEnabled then
+		camera.FieldOfView = CustomFOV
+		toggleButton.Text = "FOV: ON"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(50, 170, 50)
+	else
+		camera.FieldOfView = DEFAULT_FOV
+		toggleButton.Text = "FOV: OFF"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+	end
+end)
+
+applyButton.MouseButton1Click:Connect(function()
+	local value = tonumber(fovBox.Text)
+
+	if value then
+		value = math.clamp(value, 1, 120)
+
+		CustomFOV = value
+
+		if FOVEnabled then
+			camera.FieldOfView = CustomFOV
+		end
+	end
+end)
