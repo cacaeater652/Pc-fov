@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
@@ -9,7 +10,7 @@ local camera = workspace.CurrentCamera
 
 local DEFAULT_FOV = 70
 local FOVEnabled = false
-local CustomFOV = 120
+local CustomFOV = 115
 
 -------------------------------------------------
 -- GUI
@@ -56,7 +57,7 @@ toggleCorner.Parent = toggleButton
 local fovBox = Instance.new("TextBox")
 fovBox.Size = UDim2.new(0.9, 0, 0, 30)
 fovBox.Position = UDim2.new(0.05, 0, 0, 70)
-fovBox.PlaceholderText = "Enter FOV (e.g. 120)"
+fovBox.PlaceholderText = "Enter FOV (1-120)"
 fovBox.Text = tostring(CustomFOV)
 fovBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 fovBox.TextColor3 = Color3.new(1,1,1)
@@ -103,6 +104,55 @@ hideButton.MouseButton1Click:Connect(function()
 		hideButton.Text = "+"
 	else
 		hideButton.Text = "-"
+	end
+end)
+
+-------------------------------------------------
+-- DRAGGING
+-------------------------------------------------
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+
+		hideButton.Position = UDim2.new(
+			0,
+			frame.AbsolutePosition.X + frame.AbsoluteSize.X + 5,
+			0,
+			frame.AbsolutePosition.Y
+		)
 	end
 end)
 
