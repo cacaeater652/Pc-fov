@@ -17,7 +17,7 @@ local CustomFOV = 115
 -------------------------------------------------
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "FOV for pc"
+gui.Name = "FOVPc"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
