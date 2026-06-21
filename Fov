@@ -1,110 +1,147 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
--------------------------------------------------
--- SETTINGS
--------------------------------------------------
-
-local DEFAULT_FOV = 70
-local FOVEnabled = false
-local CustomFOV = 115
-
--------------------------------------------------
--- GUI
--------------------------------------------------
-
 local gui = Instance.new("ScreenGui")
-gui.Name = "FOVPc"
+gui.Name = "FOVChanger"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Main Frame
+local currentFOV = camera.FieldOfView
+
+-------------------------------------------------
+-- MAIN FRAME
+-------------------------------------------------
+
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 220, 0, 140)
-frame.Position = UDim2.new(0, 10, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Size = UDim2.new(0, 360, 0, 300)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
 local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 8)
 corner.Parent = frame
 
--- Title
+-------------------------------------------------
+-- TITLE
+-------------------------------------------------
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 25)
+title.Size = UDim2.new(1, -60, 0, 35)
+title.Position = UDim2.new(0, 10, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "FOV Controller"
+title.Text = "FOV Changer"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
 title.TextColor3 = Color3.new(1,1,1)
-title.TextScaled = true
+title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = frame
 
--- Toggle Button
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0.9, 0, 0, 30)
-toggleButton.Position = UDim2.new(0.05, 0, 0, 35)
-toggleButton.Text = "FOV: OFF"
-toggleButton.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
-toggleButton.TextColor3 = Color3.new(1,1,1)
-toggleButton.Parent = frame
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.Parent = toggleButton
-
--- TextBox
-local fovBox = Instance.new("TextBox")
-fovBox.Size = UDim2.new(0.9, 0, 0, 30)
-fovBox.Position = UDim2.new(0.05, 0, 0, 70)
-fovBox.PlaceholderText = "Enter FOV (1-120)"
-fovBox.Text = tostring(CustomFOV)
-fovBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-fovBox.TextColor3 = Color3.new(1,1,1)
-fovBox.Parent = frame
-
-local boxCorner = Instance.new("UICorner")
-boxCorner.Parent = fovBox
-
--- Apply Button
-local applyButton = Instance.new("TextButton")
-applyButton.Size = UDim2.new(0.9, 0, 0, 25)
-applyButton.Position = UDim2.new(0.05, 0, 0, 105)
-applyButton.Text = "Apply FOV"
-applyButton.BackgroundColor3 = Color3.fromRGB(50, 120, 50)
-applyButton.TextColor3 = Color3.new(1,1,1)
-applyButton.Parent = frame
-
-local applyCorner = Instance.new("UICorner")
-applyCorner.Parent = applyButton
-
 -------------------------------------------------
--- HIDE BUTTON
+-- CLOSE BUTTON
 -------------------------------------------------
 
-local hideButton = Instance.new("TextButton")
-hideButton.Size = UDim2.new(0, 40, 0, 25)
-hideButton.Position = UDim2.new(0, 235, 0, 10)
-hideButton.Text = "-"
-hideButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-hideButton.TextColor3 = Color3.new(1,1,1)
-hideButton.Parent = gui
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -40, 0, 3)
+close.BackgroundTransparency = 1
+close.Text = "X"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 20
+close.TextColor3 = Color3.fromRGB(255, 80, 80)
+close.Parent = frame
 
-local hideCorner = Instance.new("UICorner")
-hideCorner.Parent = hideButton
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
 
-local hidden = false
+-------------------------------------------------
+-- DISPLAY
+-------------------------------------------------
 
-hideButton.MouseButton1Click:Connect(function()
-	hidden = not hidden
+local display = Instance.new("TextLabel")
+display.Size = UDim2.new(0.88, 0, 0, 55)
+display.Position = UDim2.new(0.06, 0, 0, 45)
+display.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+display.Text = "FOV set to "..math.floor(currentFOV)
+display.Font = Enum.Font.Gotham
+display.TextSize = 24
+display.TextColor3 = Color3.new(1,1,1)
+display.Parent = frame
 
-	frame.Visible = not hidden
+Instance.new("UICorner", display)
 
-	if hidden then
-		hideButton.Text = "+"
-	else
-		hideButton.Text = "-"
-	end
+-------------------------------------------------
+-- CHANGE BUTTON
+-------------------------------------------------
+
+local changeButton = Instance.new("TextButton")
+changeButton.Size = UDim2.new(0.88, 0, 0, 50)
+changeButton.Position = UDim2.new(0.06, 0, 0, 115)
+changeButton.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+changeButton.Text = "Change FOV"
+changeButton.Font = Enum.Font.GothamBold
+changeButton.TextSize = 26
+changeButton.TextColor3 = Color3.new(1,1,1)
+changeButton.Parent = frame
+
+Instance.new("UICorner", changeButton)
+
+-------------------------------------------------
+-- QUICK SELECT
+-------------------------------------------------
+
+local quick = Instance.new("TextLabel")
+quick.Size = UDim2.new(1, 0, 0, 30)
+quick.Position = UDim2.new(0, 0, 0, 170)
+quick.BackgroundTransparency = 1
+quick.Text = "Quick Select:"
+quick.Font = Enum.Font.GothamBold
+quick.TextSize = 22
+quick.TextColor3 = Color3.new(1,1,1)
+quick.Parent = frame
+
+-------------------------------------------------
+-- BUTTONS
+-------------------------------------------------
+
+local values = {70,80,90,100,110,115}
+
+for i,v in ipairs(values) do
+	local row = math.floor((i-1)/3)
+	local col = (i-1)%3
+
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0, 95, 0, 42)
+	btn.Position = UDim2.new(
+		0, 18 + (col * 112),
+		0, 210 + (row * 55)
+	)
+
+	btn.BackgroundColor3 = Color3.fromRGB(55,55,55)
+	btn.Text = tostring(v)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 22
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Parent = frame
+
+	Instance.new("UICorner", btn)
+
+	btn.MouseButton1Click:Connect(function()
+		currentFOV = v
+		display.Text = "FOV set to "..v
+	end)
+end
+
+-------------------------------------------------
+-- APPLY
+-------------------------------------------------
+
+changeButton.MouseButton1Click:Connect(function()
+	camera.FieldOfView = currentFOV
+	display.Text = "FOV set to "..currentFOV
 end)
 
 -------------------------------------------------
@@ -112,7 +149,6 @@ end)
 -------------------------------------------------
 
 local dragging = false
-local dragInput
 local dragStart
 local startPos
 
@@ -130,14 +166,8 @@ frame.InputBegan:Connect(function(input)
 	end
 end)
 
-frame.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
 
 		frame.Position = UDim2.new(
@@ -146,44 +176,5 @@ UserInputService.InputChanged:Connect(function(input)
 			startPos.Y.Scale,
 			startPos.Y.Offset + delta.Y
 		)
-
-		hideButton.Position = UDim2.new(
-			0,
-			frame.AbsolutePosition.X + frame.AbsoluteSize.X + 5,
-			0,
-			frame.AbsolutePosition.Y
-		)
-	end
-end)
-
--------------------------------------------------
--- FOV FUNCTIONS
--------------------------------------------------
-
-toggleButton.MouseButton1Click:Connect(function()
-	FOVEnabled = not FOVEnabled
-
-	if FOVEnabled then
-		camera.FieldOfView = CustomFOV
-		toggleButton.Text = "FOV: ON"
-		toggleButton.BackgroundColor3 = Color3.fromRGB(50, 170, 50)
-	else
-		camera.FieldOfView = DEFAULT_FOV
-		toggleButton.Text = "FOV: OFF"
-		toggleButton.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
-	end
-end)
-
-applyButton.MouseButton1Click:Connect(function()
-	local value = tonumber(fovBox.Text)
-
-	if value then
-		value = math.clamp(value, 1, 120)
-
-		CustomFOV = value
-
-		if FOVEnabled then
-			camera.FieldOfView = CustomFOV
-		end
 	end
 end)
