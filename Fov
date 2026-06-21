@@ -1,4 +1,6 @@
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
@@ -17,12 +19,43 @@ local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 360, 0, 300)
 frame.Position = UDim2.new(0, 20, 0, 20)
 frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BackgroundTransparency = 0.25
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 8)
 corner.Parent = frame
+
+-------------------------------------------------
+-- HIDE BUTTON
+-------------------------------------------------
+
+local hideButton = Instance.new("TextButton")
+hideButton.Size = UDim2.new(0, 40, 0, 30)
+hideButton.Position = UDim2.new(0, 385, 0, 20)
+hideButton.Text = "-"
+hideButton.Font = Enum.Font.GothamBold
+hideButton.TextSize = 20
+hideButton.TextColor3 = Color3.new(1,1,1)
+hideButton.BackgroundColor3 = Color3.fromRGB(40,40,40)
+hideButton.BackgroundTransparency = 0.25
+hideButton.Parent = gui
+
+Instance.new("UICorner", hideButton)
+
+local hidden = false
+
+hideButton.MouseButton1Click:Connect(function()
+	hidden = not hidden
+	frame.Visible = not hidden
+
+	if hidden then
+		hideButton.Text = "+"
+	else
+		hideButton.Text = "-"
+	end
+end)
 
 -------------------------------------------------
 -- TITLE
@@ -65,6 +98,7 @@ local display = Instance.new("TextLabel")
 display.Size = UDim2.new(0.88, 0, 0, 55)
 display.Position = UDim2.new(0.06, 0, 0, 45)
 display.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+display.BackgroundTransparency = 0.25
 display.Text = "FOV set to "..math.floor(currentFOV)
 display.Font = Enum.Font.Gotham
 display.TextSize = 24
@@ -81,6 +115,7 @@ local changeButton = Instance.new("TextButton")
 changeButton.Size = UDim2.new(0.88, 0, 0, 50)
 changeButton.Position = UDim2.new(0.06, 0, 0, 115)
 changeButton.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+changeButton.BackgroundTransparency = 0.25
 changeButton.Text = "Change FOV"
 changeButton.Font = Enum.Font.GothamBold
 changeButton.TextSize = 26
@@ -107,7 +142,7 @@ quick.Parent = frame
 -- BUTTONS
 -------------------------------------------------
 
-local values = {70,80,90,100,110,115}
+local values = {70,80,90,100,110,120}
 
 for i,v in ipairs(values) do
 	local row = math.floor((i-1)/3)
@@ -121,6 +156,7 @@ for i,v in ipairs(values) do
 	)
 
 	btn.BackgroundColor3 = Color3.fromRGB(55,55,55)
+	btn.BackgroundTransparency = 0.25
 	btn.Text = tostring(v)
 	btn.Font = Enum.Font.GothamBold
 	btn.TextSize = 22
@@ -166,7 +202,7 @@ frame.InputBegan:Connect(function(input)
 	end
 end)
 
-game:GetService("UserInputService").InputChanged:Connect(function(input)
+UserInputService.InputChanged:Connect(function(input)
 	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
 
@@ -175,6 +211,13 @@ game:GetService("UserInputService").InputChanged:Connect(function(input)
 			startPos.X.Offset + delta.X,
 			startPos.Y.Scale,
 			startPos.Y.Offset + delta.Y
+		)
+
+		hideButton.Position = UDim2.new(
+			0,
+			frame.AbsolutePosition.X + frame.AbsoluteSize.X + 5,
+			0,
+			frame.AbsolutePosition.Y
 		)
 	end
 end)
