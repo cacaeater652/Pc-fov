@@ -220,4 +220,15 @@ UserInputService.InputChanged:Connect(function(input)
 			frame.AbsolutePosition.Y
 		)
 	end
+end) -------------------------------------------------
+-- PRESS E TO REAPPLY CURRENT FOV
+-------------------------------------------------
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+
+	if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.E then
+		camera.FieldOfView = currentFOV
+		display.Text = "FOV set to "..currentFOV
+	end
 end)
